@@ -68,16 +68,21 @@ export default function ExplorerWindow() {
       <NavigationBar
         selectedFolder={selectedFolder}
         currentPath={currentPath}
+        activeView={activeView}
         onBack={() => {
-          setSelectedFolder(null)
-          setSelectedFile(null)
-          setSearch('')
+            if (activeView === "recycle") {
+              setRecyclePreview(null)
+            } else {
+              setSelectedFolder(null)
+              setSelectedFile(null)
+              setSearch('')
+            }
         }}
         onSearch={setSearch}
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-60 flex-shrink-0 border-gray-50">
+        <div className="w-60 flex-shrink-0">
           <Sidebar
             onSelect={(view) => {
               setActiveView(view)
@@ -122,7 +127,7 @@ export default function ExplorerWindow() {
                 />
               ) : (
                 <>
-                  <h2 className="text-lg font-semibold text-gray-700">🗑️ Recycle Bin</h2>
+                  <h2 className="text-lg font-semibold text-gray-700">Recycle Bin</h2>
                   <div className="grid grid-cols-5 gap-6 place-items-center">
                     {recycleBinItems.map((file, idx) => (
                       <div
