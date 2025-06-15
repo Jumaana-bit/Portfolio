@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "build:css": ".\\tailwindcss.exe -i ./src/input.css -o ./dist/output.css",
     "lint": "next lint"
   },
   "dependencies": {

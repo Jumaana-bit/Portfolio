@@ -82,7 +82,7 @@ export default function ExplorerWindow() {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-60 flex-shrink-0">
+        <div className="w-60 flex-shrink-0 border-gray-50">
           <Sidebar
             onSelect={(view) => {
               setActiveView(view)
