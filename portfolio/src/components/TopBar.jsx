@@ -1,12 +1,10 @@
-export default function TopBar() {
+export default function TopBar({ selectedFolder }) {
   return (
-    <div className="bg-blue-100 p-2 border-b text-sm flex justify-between items-center shadow-sm">
-      <div className="space-x-3 text-blue-900 font-semibold">
-        <span className="hover:bg-white hover:shadow px-2 py-1 rounded cursor-pointer">File</span>
-        <span className="hover:bg-white hover:shadow px-2 py-1 rounded cursor-pointer">Home</span>
-        <span className="hover:bg-white hover:shadow px-2 py-1 rounded cursor-pointer">View</span>
+    <div className="bg-blue-100 text-sm shadow-sm">
+        {/* Spacer fills space and pushes title right */}
+        <div className="flex-1 text-right text-gray-600 font-medium pb-1 pr-2">
+          💼 My Portfolio - File Explorer
+        </div>
       </div>
-      <span className="text-gray-600 font-medium">💼 My Portfolio - File Explorer</span>
-    </div>
-  )
+  );
 }

@@ -2,93 +2,144 @@ import { useState } from 'react'
 import TopBar from './TopBar'
 import Sidebar from './Sidebar'
 import FileGrid from './FileGrid'
+import NavigationBar from './NavigationBar'
+import FilePreview from './FilePreview'
+import FileItem from './FileItem'
 
-// ✅ 1. Use objects for each file
 const folderContents = {
-  "Resume": [
-    { name: "Resume.pdf", type: "pdf" },
-    { name: "TTC job.pdf", type: "pdf" }
+  "Home Page": [{ name: "About Me.pdf", type: "pdf" }],
+  "Education": [
+    { name: "ONTECH Degree.pdf", type: "pdf" },
+    { name: "Courses.pdf", type: "pdf" }
+  ],
+  "Experience": [
+    { name: "OPS.pdf", type: "pdf" },
+    { name: "Helios.pdf", type: "pdf" },
+    { name: "Wouessi.pdf", type: "pdf" }
+  ],
+  "Projects": [
+    { name: "Age and Gender Recognition System.png", type: "image" },
+    { name: "Sky High Travels.pdf", type: "pdf" },
+    { name: "Virtual Memory.pdf", type: "pdf" },
+    { name: "Amusement Park Service.pdf", type: "pdf" }
+  ],
+  "Certificates": [
+    { name: "Certificate.pdf", type: "pdf" },
+    { name: "Catalyst Challenge.pdf", type: "pdf" },
+    { name: "Jumaana Aslam ADC.pdf", type: "pdf" },
+    { name: "Seize the Moment.pdf", type: "pdf" },
+    { name: "Academic Achievements.pdf", type: "pdf" }
   ]
 }
 
-// ✅ 2. Map type to icon
-const getFileIcon = (type) => {
-  switch (type) {
-    case "pdf": return "/icons/pdf.png"
-    case "doc": return "/icons/doc.png"
-    case "txt": return "/icons/txt.png"
-    case "image": return "/icons/image.png"
-    case "folder": return "/folder.png"
-    default: return "/icons/file.png"
+const recycleBinItems = [
+  {
+    name: "ReasonsToHire_Jumaana.txt",
+    type: "txt"
   }
-}
+]
 
 export default function ExplorerWindow() {
-  const [activeView, setActiveView] = useState("desktop");
-  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [activeView, setActiveView] = useState("desktop")
+  const [selectedFolder, setSelectedFolder] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [search, setSearch] = useState('')
+  const [currentPath, setCurrentPath] = useState(["Desktop"])
+  const [recyclePreview, setRecyclePreview] = useState(null)
 
   const handleFolderClick = (folderName) => {
-    setSelectedFolder(folderName);
+    setSelectedFolder(folderName)
+    setSelectedFile(null)
   }
+
+  const filteredFolders = Object.keys(folderContents).filter(folderName =>
+    folderName.toLowerCase().includes(search.toLowerCase())
+  )
+  const filteredFiles = selectedFolder
+    ? (folderContents[selectedFolder] || []).filter(file =>
+        file.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : []
 
   return (
     <div className="w-[90vw] h-[90vh] bg-white rounded-md shadow-xl border border-gray-300 flex flex-col m-auto mt-10 overflow-hidden">
-      <TopBar />
-      <div className="flex flex-1">
-        <Sidebar
-          onSelect={(view) => {
-            setActiveView(view);
-            setSelectedFolder(null);
-          }}
-        />
-        <div className="flex-1 bg-white p-4">
+      <TopBar selectedFolder={selectedFolder} />
+
+      <NavigationBar
+        selectedFolder={selectedFolder}
+        currentPath={currentPath}
+        onBack={() => {
+          setSelectedFolder(null)
+          setSelectedFile(null)
+          setSearch('')
+        }}
+        onSearch={setSearch}
+      />
+
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-60 flex-shrink-0 border-gray-50">
+          <Sidebar
+            onSelect={(view) => {
+              setActiveView(view)
+              setSelectedFolder(null)
+              setSelectedFile(null)
+              setSearch('')
+            }}
+            currentPath={currentPath}
+            setCurrentPath={setCurrentPath}
+          />
+        </div>
+
+        <main className="flex-1 overflow-auto p-4 bg-white">
           {activeView === "desktop" && !selectedFolder && (
-            <FileGrid onFolderClick={handleFolderClick} />
+            <FileGrid folders={filteredFolders} onFolderClick={handleFolderClick} />
           )}
 
           {activeView === "desktop" && selectedFolder && (
-            <div className="p-4 space-y-4">
-              <div className="text-lg font-semibold text-gray-700">
-                📂 {selectedFolder}
-              </div>
-
+            <div className="space-y-4">
               <div className="grid grid-cols-5 gap-6 place-items-center">
-                {folderContents[selectedFolder]?.map((file, idx) => (
-                  <a
+                {filteredFiles.map((file, idx) => (
+                  <div
                     key={idx}
-                    href={`/files/${file.name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center space-y-1 hover:scale-105 transition"
+                    onClick={() => setSelectedFile(file)}
+                    className="cursor-pointer"
                   >
-                    <img
-                      src={getFileIcon(file.type)}
-                      alt={file.name}
-                      className="w-12 h-12"
-                    />
-                    <span className="text-xs text-center text-gray-700">
-                      {file.name}
-                    </span>
-                  </a>
+                    <FileItem label={file.name} fileType={file.type} />
+                  </div>
                 ))}
               </div>
 
-              <button
-                onClick={() => setSelectedFolder(null)}
-                className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
-              >
-                ← Back to Desktop
-              </button>
+              <FilePreview file={selectedFile} onClose={() => setSelectedFile(null)} />
             </div>
           )}
 
           {activeView === "recycle" && (
-            <div className="text-gray-500 text-lg">
-              🗑️ Recycle Bin is empty!
+            <div className="space-y-4">
+              {recyclePreview ? (
+                <FilePreview
+                  file={recyclePreview}
+                  onClose={() => setRecyclePreview(null)}
+                />
+              ) : (
+                <>
+                  <h2 className="text-lg font-semibold text-gray-700">🗑️ Recycle Bin</h2>
+                  <div className="grid grid-cols-5 gap-6 place-items-center">
+                    {recycleBinItems.map((file, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => setRecyclePreview(file)}
+                        className="cursor-pointer"
+                      >
+                        <FileItem label={file.name} fileType={file.type} />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
-        </div>
+        </main>
       </div>
     </div>
-  );
+  )
 }
